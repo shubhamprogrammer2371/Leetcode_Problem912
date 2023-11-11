@@ -1,0 +1,127 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int cmpfnc(const void* a , const void* b)
+{
+    return *(int*)a - *(int*)b;
+}
+int* sortArray(int* nums, int numsSize, int* returnSize) {
+    qsort(nums,numsSize,sizeof(int),cmpfnc);
+    *returnSize = numsSize;
+    return nums;
+}
+
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+void swap(int *a, int* b) 
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void heapify(int *arr, int n, int i) 
+{
+    int largest = i, l = 2 * i + 1, r = 2 * i + 2; 
+    if (l < n && arr[l] > arr[largest])
+        largest = l;
+    if (r < n && arr[r] > arr[largest])
+        largest = r;
+    if (largest != i) 
+    {
+        swap(&arr[i], &arr[largest]);
+        heapify(arr, n, largest);
+    }
+}
+void buildHeap(int *arr, int n) 
+{
+    for (int i = (n / 2) - 1 ; i >= 0 ; i--) 
+        heapify(arr, n, i);
+}
+int* sortArray(int* nums, int numsSize, int* returnSize){
+    buildHeap(nums, numsSize);
+    *returnSize = numsSize;
+    for (int i = numsSize - 1; i > 0; i--) // Sort
+    {
+        swap(&nums[i], &nums[0]);
+        heapify(nums, i, 0);   
+    }
+    return nums;    
+}
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* sortArray(int* nums, int numsSize, int* returnSize) {
+    int minVal = nums[0], maxVal = nums[0]; // Determine the range of values in the input array.
+    for (int i = 1; i < numsSize; i++) 
+    {
+        if(nums[i] < minVal)
+            minVal = nums[i];
+        if(nums[i] > maxVal)
+            maxVal = nums[i];
+    }
+    int range = maxVal - minVal + 1 , *countingArray = malloc(range * sizeof(int)); // Create a counting array to count occurrences of each value.
+    memset(countingArray,0,range*sizeof(int));
+    for (int i = 0; i < numsSize; i++)
+        countingArray[nums[i] - minVal]++;
+    *returnSize = 0;
+    for (int i = 0; i < range; i++) 
+    {
+        while (countingArray[i]) 
+        {
+            nums[(*returnSize)++] = i + minVal;
+            countingArray[i]--;
+        }
+    }
+    free(countingArray);
+    return nums;
+}
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+void merge(int *A, int low, int mid, int high)
+{
+    int i = low, j = mid + 1, k = low, B[high + 1];
+    while(i <= mid && j <= high)
+        B[k++] = (A[i] < A[j]) ? A[i++] : A[j++];
+    while(i <= mid)
+        B[k++] = A[i++];
+    while(j <= high)
+        B[k++] = A[j++];
+    for(int i = low; i <= high; i++)
+        A[i] = B[i];
+}
+void mergeSortR(int *A, int low, int high)
+{
+    int mid;
+    if(low < high)
+    {
+        mid = (low + high) / 2;
+        mergeSortR(A, low, mid);
+        mergeSortR(A, mid+1, high);
+        merge(A,low,mid,high);
+    }
+}
+int* sortArray(int* nums, int numsSize, int* returnSize) {
+    mergeSortR(nums, 0, numsSize-1);
+    *returnSize = numsSize;
+    return nums;
+}
